@@ -12,7 +12,7 @@
 	utility_extra = list(/obj/item/clothing/head/beret/cm, /obj/item/clothing/head/beret/cm/tan)
 
 	service_under = list(/obj/item/clothing/under/marine/officer/bridge)
-	service_over = list(/obj/item/clothing/suit/storage/jacket/marine/service)
+	service_over = list(/obj/item/clothing/suit/storage/jacket/marine/service, /obj/item/clothing/suit/storage/jacket/marine/service/mp)
 	service_hat = list(/obj/item/clothing/head/cmcap)
 	service_shoes = list(/obj/item/clothing/shoes/dress)
 
@@ -27,7 +27,6 @@
 /datum/equipment_preset/uscm_ship/liaison
 	name = "USCM Corporate Liaison (CL)"
 	flags = EQUIPMENT_PRESET_START_OF_ROUND
-	languages = list(LANGUAGE_ENGLISH, LANGUAGE_JAPANESE)
 
 	idtype = /obj/item/card/id/silver/cl
 	access = list(
@@ -107,7 +106,6 @@
 /datum/equipment_preset/uscm_ship/chief_engineer
 	name = "USCM Chief Engineer (CE)"
 	flags = EQUIPMENT_PRESET_START_OF_ROUND|EQUIPMENT_PRESET_MARINE
-	languages = list(LANGUAGE_ENGLISH, LANGUAGE_JAPANESE)
 
 	idtype = /obj/item/card/id/silver
 	access = list(
@@ -129,6 +127,7 @@
 	skills = /datum/skills/CE
 
 	utility_under = list(/obj/item/clothing/under/marine/officer/ce)
+	dress_extra = list(/obj/item/clothing/suit/storage/jacket/marine/dress/bridge_coat_grey)
 
 /datum/equipment_preset/uscm_ship/chief_engineer/load_gear(mob/living/carbon/human/H)
 	var/backItem = /obj/item/storage/backpack/marine/satchel/tech
@@ -218,7 +217,6 @@
 /datum/equipment_preset/uscm_ship/ro
 	name = "USCM Requisitions Officer (RO)"
 	flags = EQUIPMENT_PRESET_START_OF_ROUND|EQUIPMENT_PRESET_MARINE
-	languages = list(LANGUAGE_ENGLISH, LANGUAGE_JAPANESE)
 
 	idtype = /obj/item/card/id/silver
 	access = list(
@@ -242,6 +240,7 @@
 	skills = /datum/skills/RO
 
 	utility_under = list(/obj/item/clothing/under/rank/ro_suit)
+	dress_extra = list(/obj/item/clothing/suit/storage/jacket/marine/dress/bridge_coat_grey)
 
 /datum/equipment_preset/uscm_ship/ro/load_gear(mob/living/carbon/human/H)
 	var/backItem = /obj/item/storage/backpack/marine/satchel/tech
@@ -291,14 +290,13 @@
 /datum/equipment_preset/uscm_ship/commander
 	name = "USCM Commanding Officer (CO)"
 	flags = EQUIPMENT_PRESET_START_OF_ROUND|EQUIPMENT_PRESET_MARINE
-	languages = list(LANGUAGE_ENGLISH, LANGUAGE_RUSSIAN, LANGUAGE_JAPANESE, LANGUAGE_WELTRAUMDEUTSCH, LANGUAGE_NEOSPANISH) //All languages.
 
 	idtype = /obj/item/card/id/gold
 	assignment = JOB_CO
 	rank = JOB_CO
 	paygrade = "MO4"
 	role_comm_title = "CO"
-	minimum_age = 40
+	minimum_age = 30
 	skills = /datum/skills/commander
 
 	utility_under = list(/obj/item/clothing/under/marine,/obj/item/clothing/under/marine/officer/command)
@@ -314,7 +312,7 @@
 	dress_extra = list(/obj/item/storage/large_holster/ceremonial_sword/full)
 	dress_hat = list(/obj/item/clothing/head/marine/peaked/captain/white, /obj/item/clothing/head/marine/peaked/captain/black)
 	dress_shoes = list(/obj/item/clothing/shoes/dress/commander)
-	dress_over = list(/obj/item/clothing/suit/storage/jacket/marine/dress/officer/white, /obj/item/clothing/suit/storage/jacket/marine/dress/officer/black, /obj/item/clothing/suit/storage/jacket/marine/dress/officer/suit)
+	dress_over = list(/obj/item/clothing/suit/storage/jacket/marine/dress/officer/white, /obj/item/clothing/suit/storage/jacket/marine/dress/officer/black, /obj/item/clothing/suit/storage/jacket/marine/dress/officer/suit, /obj/item/clothing/suit/storage/jacket/marine/dress/bridge_coat_grey, /obj/item/clothing/suit/storage/jacket/marine/dress/bridge_coat)
 
 /datum/equipment_preset/uscm_ship/commander/New()
 	. = ..()
@@ -332,9 +330,9 @@
 			if("Mateba")
 				sidearmpath = /obj/item/storage/belt/gun/mateba/cmateba/full
 				kit = /obj/item/storage/mateba_case/captain
-			if("Commodore's Mateba")
-				sidearmpath = /obj/item/storage/belt/gun/mateba/commodore/full
-				kit = /obj/item/storage/mateba_case/captain/commodore
+			if("Colonel's Mateba")
+				sidearmpath = /obj/item/storage/belt/gun/mateba/council/full
+				kit = /obj/item/storage/mateba_case/captain/council
 			if("Desert Eagle")
 				sidearmpath = /obj/item/storage/belt/gun/m4a3/heavy/co
 			if("Golden Desert Eagle")
@@ -359,28 +357,28 @@
 
 //*****************************************************************************************************/
 
-/datum/equipment_preset/uscm_ship/commander/commodore
+/datum/equipment_preset/uscm_ship/commander/council
 	name = "USCM Commanding Officer (CO+)"
 	flags = EQUIPMENT_PRESET_START_OF_ROUND|EQUIPMENT_PRESET_MARINE
 
-	idtype = /obj/item/card/id/gold/commodore
+	idtype = /obj/item/card/id/gold/council
 	rank = JOB_CO
 	paygrade = "MO5"
 	role_comm_title = "CO"
-	minimum_age = 45
+	minimum_age = 35
 
-/datum/equipment_preset/uscm_ship/commander/commodore/load_gear(mob/living/carbon/human/H)
+/datum/equipment_preset/uscm_ship/commander/council/load_gear(mob/living/carbon/human/H)
 	H.equip_to_slot_or_del(new /obj/item/clothing/under/marine/officer/bridge(H), WEAR_BODY)
-	H.equip_to_slot_or_del(new /obj/item/clothing/head/beret/marine/commander/cdre(H), WEAR_HEAD)
+	H.equip_to_slot_or_del(new /obj/item/clothing/head/beret/marine/commander/council(H), WEAR_HEAD)
 	. = ..()
 
-/datum/equipment_preset/uscm_ship/commander/commodore/plus
+/datum/equipment_preset/uscm_ship/commander/council/plus
 	name = "USCM Commanding Officer (CO++)"
-	idtype = /obj/item/card/id/admiral
-	paygrade = "MO5"
+	idtype = /obj/item/card/id/general
+	paygrade = "MO6"
 
-/datum/equipment_preset/uscm_ship/commander/commodore/plus/load_gear(mob/living/carbon/human/H)
-	H.equip_to_slot_or_del(new /obj/item/clothing/head/beret/marine/commander/cdrechief(H), WEAR_HEAD)
+/datum/equipment_preset/uscm_ship/commander/council/plus/load_gear(mob/living/carbon/human/H)
+	H.equip_to_slot_or_del(new /obj/item/clothing/head/beret/marine/commander/councilchief(H), WEAR_HEAD)
 	. = ..()
 
 //*****************************************************************************************************/
@@ -388,7 +386,6 @@
 /datum/equipment_preset/uscm_ship/xo
 	name = "USCM Executive Officer (XO)"
 	flags = EQUIPMENT_PRESET_START_OF_ROUND|EQUIPMENT_PRESET_MARINE
-	languages = list(LANGUAGE_ENGLISH, LANGUAGE_RUSSIAN, LANGUAGE_JAPANESE, LANGUAGE_WELTRAUMDEUTSCH, LANGUAGE_NEOSPANISH) //All languages.
 
 	idtype = /obj/item/card/id/silver
 	assignment = JOB_XO
@@ -398,7 +395,7 @@
 	minimum_age = 35
 	skills = /datum/skills/XO
 
-	dress_extra = list(/obj/item/storage/large_holster/ceremonial_sword/full)
+	dress_extra = list(/obj/item/storage/large_holster/ceremonial_sword/full, /obj/item/clothing/suit/storage/jacket/marine/dress/bridge_coat_grey)
 
 /datum/equipment_preset/uscm_ship/xo/New()
 	. = ..()
@@ -448,6 +445,7 @@
 	H.equip_to_slot_or_del(new /obj/item/storage/pouch/general/large(H), WEAR_R_STORE)
 	H.equip_to_slot_or_del(new /obj/item/device/binoculars/range(H), WEAR_L_HAND)
 
+	dress_extra = list(/obj/item/clothing/suit/storage/jacket/marine/dress/bridge_coat_grey)
 //*****************************************************************************************************/
 
 /datum/equipment_preset/uscm_ship/sea
@@ -464,7 +462,7 @@
 	skills = /datum/skills/SEA
 
 	service_hat = list(/obj/item/clothing/head/cmcap, /obj/item/clothing/head/drillhat)
-
+	dress_extra = list(/obj/item/storage/large_holster/ceremonial_sword/full, /obj/item/clothing/suit/storage/jacket/marine/dress/bridge_coat_grey)
 
 /datum/equipment_preset/uscm_ship/sea/New()
 	. = ..()
@@ -607,7 +605,7 @@
 	name = "USCM Officer (USCM Command)"
 	flags = EQUIPMENT_PRESET_EXTRA|EQUIPMENT_PRESET_MARINE
 
-	idtype = /obj/item/card/id/admiral
+	idtype = /obj/item/card/id/general
 	access = list(ACCESS_MARINE_MEDBAY, ACCESS_MARINE_CHEMISTRY, ACCESS_MARINE_MORGUE)
 	assignment = "USCM Officer"
 	rank = "USCM Officer"
@@ -623,7 +621,7 @@
 	service_hat = list(/obj/item/clothing/head/beret/cm)
 	service_shoes = list(/obj/item/clothing/shoes/dress/commander)
 
-	dress_extra = list(/obj/item/clothing/head/beret/marine/commander/dress, /obj/item/storage/large_holster/ceremonial_sword/full)
+	dress_extra = list(/obj/item/clothing/head/beret/marine/commander/dress,/obj/item/clothing/suit/storage/jacket/marine/dress/bridge_coat_grey, /obj/item/clothing/suit/storage/jacket/marine/dress/bridge_coat, /obj/item/storage/large_holster/ceremonial_sword/full)
 	dress_hat = list(/obj/item/clothing/head/marine/peaked/captain)
 	dress_shoes = list(/obj/item/clothing/shoes/dress/commander)
 

@@ -227,6 +227,7 @@
 	vision_flags = SEE_MOBS
 	darkness_view = 7
 	flags_item = NODROP|DELONDROP|ITEM_ABSTRACT
+	lighting_alpha = LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE
 
 
 /obj/item/storage/fancy/blackgoo
@@ -238,15 +239,15 @@
 	storage_slots = 3
 	can_hold = list(/obj/item/reagent_container/food/drinks/bottle/black_goo)
 
-
-	examine(mob/user)
-		to_chat(user, "A strange looking metal container...")
-		if(contents.len <= 0)
-			to_chat(user, "There are no bottles left inside it.")
-		else if(contents.len == 1)
-			to_chat(user, "There is one bottle left inside it.")
-		else
-			to_chat(user, "There are [src.contents.len] bottles inside the container.")
+/obj/item/storage/fancy/blackgoo/get_examine_text(mob/user)
+	. = ..()
+	. += "A strange looking metal container..."
+	if(contents.len <= 0)
+		. += "There are no bottles left inside it."
+	else if(contents.len == 1)
+		. += "There is one bottle left inside it."
+	else
+		. += "There are [src.contents.len] bottles inside the container."
 
 
 /obj/item/storage/fancy/blackgoo/Initialize()

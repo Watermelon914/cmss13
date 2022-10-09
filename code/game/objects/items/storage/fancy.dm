@@ -20,23 +20,23 @@
 	name = "donut box"
 	var/icon_type = "donut"
 
-	update_icon()
-		icon_state = "[icon_type]box[contents.len]"
+/obj/item/storage/fancy/update_icon()
+	icon_state = "[icon_type]box[contents.len]"
 
-	remove_from_storage(obj/item/W, atom/new_location)
-		. = ..()
-		if(.)
-			update_icon()
+/obj/item/storage/fancy/remove_from_storage(obj/item/W, atom/new_location)
+	. = ..()
+	if(.)
+		update_icon()
 
 
-	examine(mob/user)
-		..()
-		if(contents.len <= 0)
-			to_chat(user, "There are no [src.icon_type]s left in the box.")
-		else if(contents.len == 1)
-			to_chat(user, "There is one [src.icon_type] left in the box.")
-		else
-			to_chat(user, "There are [src.contents.len] [src.icon_type]s in the box.")
+/obj/item/storage/fancy/get_examine_text(mob/user)
+	..()
+	if(contents.len <= 0)
+		. += "There are no [src.icon_type]s left in the box."
+	else if(contents.len == 1)
+		. += "There is one [src.icon_type] left in the box."
+	else
+		. += "There are [src.contents.len] [src.icon_type]s in the box."
 
 
 /*
@@ -125,6 +125,7 @@
 	w_class = SIZE_TINY
 	throwforce = 2
 	flags_equip_slot = SLOT_WAIST
+	max_w_class = SIZE_TINY
 	storage_slots = 20
 	can_hold = list(
 		/obj/item/clothing/mask/cigarette,
@@ -226,7 +227,6 @@
 	icon_state = "cigarcase"
 	item_state = "cigarcase"
 	icon = 'icons/obj/items/cigarettes.dmi'
-	w_class = SIZE_TINY
 	throwforce = 2
 	w_class = SIZE_SMALL
 	flags_equip_slot = SLOT_WAIST
@@ -342,6 +342,7 @@
 	icon_state = "vialbox0"
 	icon_type = "vial"
 	name = "vial storage box"
+	is_objective = TRUE
 	storage_slots = 6
 	storage_flags = STORAGE_FLAGS_DEFAULT|STORAGE_CLICK_GATHER
 	can_hold = list(/obj/item/reagent_container/glass/beaker/vial,/obj/item/reagent_container/hypospray/autoinjector)

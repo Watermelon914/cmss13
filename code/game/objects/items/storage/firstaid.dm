@@ -82,6 +82,21 @@
 /obj/item/storage/firstaid/regular/empty/fill_preset_inventory()
 	return
 
+/obj/item/storage/firstaid/robust
+	icon_state = "firstaid"
+
+/obj/item/storage/firstaid/robust/fill_preset_inventory()
+	new /obj/item/device/healthanalyzer(src)
+	new /obj/item/storage/pill_bottle/bicaridine(src)
+	new /obj/item/storage/pill_bottle/kelotane(src)
+	new /obj/item/storage/pill_bottle/tramadol(src)
+	new /obj/item/stack/medical/bruise_pack(src)
+	new /obj/item/stack/medical/advanced/ointment(src)
+	new /obj/item/stack/medical/splint(src)
+
+/obj/item/storage/firstaid/robust/empty/fill_preset_inventory()
+	return
+
 /obj/item/storage/firstaid/toxin
 	name = "toxin first-aid kit"
 	desc = "Used to treat when you have a high amount of toxins in your body."
@@ -274,24 +289,24 @@
 	else
 		maptext = ""
 
-/obj/item/storage/pill_bottle/examine(mob/user)
-	..()
+/obj/item/storage/pill_bottle/get_examine_text(mob/user)
+	. = ..()
 	var/pills_amount = contents.len
 	if(pills_amount)
 		var/percentage_filled = round(pills_amount/max_storage_space * 100)
 		switch(percentage_filled)
 			if(80 to 101)
-				to_chat(user, SPAN_INFO("The [name] seems fairly full."))
+				. += SPAN_INFO("The [name] seems fairly full.")
 			if(60 to 79)
-				to_chat(user, SPAN_INFO("The [name] feels more than half full."))
+				. += SPAN_INFO("The [name] feels more than half full.")
 			if(40 to 59)
-				to_chat(user, SPAN_INFO("The [name] seems to be around half full."))
+				. += SPAN_INFO("The [name] seems to be around half full.")
 			if(20 to 39)
-				to_chat(user, SPAN_INFO("The [name] feels less than half full."))
+				. += SPAN_INFO("The [name] feels less than half full.")
 			if(0 to 19)
-				to_chat(user, SPAN_INFO("The [name] feels like it's nearly empty!"))
+				. += SPAN_INFO("The [name] feels like it's nearly empty!")
 	else
-		to_chat(user, SPAN_INFO("The [name] is empty."))
+		. += SPAN_INFO("The [name] is empty.")
 
 
 /obj/item/storage/pill_bottle/attack_self(mob/living/user)
@@ -541,7 +556,7 @@
 	display_maptext = FALSE //for muh corporate secrets - Stan_Albatross
 
 	req_access = list(ACCESS_WY_CORPORATE)
-	var/req_role = "Corporate Liaison"
+	var/req_role = JOB_CORPORATE_LIAISON
 
 
 /obj/item/storage/pill_bottle/ultrazine/proc/id_check(mob/user)
@@ -585,6 +600,36 @@
 	idlock = 0
 	display_maptext = TRUE
 	maptext_label = "Uz"
+
+/obj/item/storage/pill_bottle/mystery
+	name = "\improper Weird-looking pill bottle"
+	desc = "You can't seem to identify this."
+	skilllock = SKILL_MEDICAL_MEDIC
+
+/obj/item/storage/pill_bottle/mystery/Initialize()
+	icon_state = "pill_canister[rand(1, 12)]"
+	maptext_label = "??"
+	. = ..()
+
+/obj/item/storage/pill_bottle/mystery/fill_preset_inventory()
+	var/list/cool_pills = subtypesof(/obj/item/reagent_container/pill)
+	for(var/i=1 to max_storage_space)
+		var/pill_to_fill = pick(cool_pills)
+		var/obj/item/reagent_container/pill/P = new pill_to_fill(src)
+		P.identificable = FALSE
+
+/obj/item/storage/pill_bottle/mystery/skillless
+	skilllock = SKILL_MEDICAL_DEFAULT
+
+/obj/item/storage/pill_bottle/stimulant
+	name = "\improper Stimulant pill bottle"
+	icon_state = "pill_canister12"
+	pill_type_to_fill = /obj/item/reagent_container/pill/stimulant
+	skilllock = SKILL_MEDICAL_MEDIC
+	maptext_label = "ST"
+
+/obj/item/storage/pill_bottle/stimulant/skillless
+	skilllock = SKILL_MEDICAL_DEFAULT
 
 //---------PILL PACKETS---------
 obj/item/storage/pill_bottle/packet

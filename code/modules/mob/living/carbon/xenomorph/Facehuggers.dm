@@ -51,7 +51,6 @@
 			new_icon = icon_xenonid
 
 	icon = new_icon
-
 	set_hive_data(src, hivenumber)
 	go_active()
 
@@ -141,15 +140,15 @@
 		var/mob/living/carbon/Xenomorph/Carrier/C = user
 		C.store_hugger(src)
 
-/obj/item/clothing/mask/facehugger/examine(mob/user)
-	..()
+/obj/item/clothing/mask/facehugger/get_examine_text(mob/user)
+	. = ..()
 	switch(stat)
 		if(DEAD, UNCONSCIOUS)
-			to_chat(user, SPAN_DANGER("[src] is not moving."))
+			. += SPAN_DANGER("[src] is not moving.")
 		if(CONSCIOUS)
-			to_chat(user, SPAN_DANGER("[src] seems to be active."))
+			. += SPAN_DANGER("[src] seems to be active.")
 	if(sterile)
-		to_chat(user, SPAN_DANGER("It looks like the proboscis has been removed."))
+		. += SPAN_DANGER("It looks like the proboscis has been removed.")
 
 /obj/item/clothing/mask/facehugger/attackby(obj/item/W, mob/user)
 	if(W.flags_item & NOBLUDGEON)
@@ -377,7 +376,7 @@
 	if(!impregnated)
 		icon_state = "[initial(icon_state)]_dead"
 	stat = DEAD
-
+	flags_inventory &= ~CANTSTRIP
 	visible_message("[icon2html(src, viewers(src))] <span class='danger'>\The [src] curls up into a ball!</span>")
 	playsound(src.loc, 'sound/voice/alien_facehugger_dies.ogg', 25, 1)
 

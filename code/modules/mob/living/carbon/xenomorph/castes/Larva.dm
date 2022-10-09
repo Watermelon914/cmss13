@@ -5,6 +5,7 @@
 	plasma_max = 10
 	melee_damage_lower = 0
 	melee_damage_upper = 0
+	melee_vehicle_damage = 0
 	max_health = XENO_HEALTH_LARVA
 	caste_desc = "D'awwwww, so cute!"
 	speed = XENO_SPEED_TIER_10
@@ -73,8 +74,8 @@
 	poolable = FALSE //Not interchangeable with regular larvas in the pool.
 
 /mob/living/carbon/Xenomorph/Larva/predalien/Initialize(mapload, mob/living/carbon/Xenomorph/oldXeno, h_number)
-	. = ..()
 	icon_xeno = get_icon_from_source(CONFIG_GET(string/alien_hunter_embryo))
+	. = ..()
 	hunter_data.dishonored = TRUE
 	hunter_data.dishonored_reason = "An abomination upon the honor of us all!"
 	hunter_data.dishonored_set = src

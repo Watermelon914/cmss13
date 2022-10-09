@@ -107,7 +107,7 @@
 	var/L
 	if(lit)
 		return
-	if(istype(W, /obj/item/tool/weldingtool))
+	if(iswelder(W))
 		var/obj/item/tool/weldingtool/WT = W
 		if(WT.isOn())
 			L = 1
@@ -740,6 +740,21 @@
 	icon_state = "wreath"
 
 
+/obj/structure/prop/static_tank
+	name = "liquid tank"
+	desc = "Warning, contents under pressure!"
+	icon = 'icons/obj/structures/props/generic_props.dmi'
+	icon_state = "tank"
+	density = 1
+
+/obj/structure/prop/static_tank/fuel
+	desc = "It contains Decatuxole-Hypospaldirol. A non volatile liquid fuel type that tastes like oranges. Can't really be used for anything outside of atmos-rocket boosters."
+	icon_state = "weldtank_old"
+
+/obj/structure/prop/static_tank/water
+	desc = "It contains non-potable water. A label on the side instructs you to boil before consumption. It smells vaguely like the showers on the Almayer."
+	icon_state = "watertank_old"
+
 //INVULNERABLE PROPS
 
 /obj/structure/prop/invuln
@@ -879,9 +894,9 @@
 			else
 				inscription = message
 
-/obj/structure/prop/wooden_cross/examine(mob/user)
-	..()
-	to_chat(user, "\"[inscription]\"")
+/obj/structure/prop/wooden_cross/get_examine_text(mob/user)
+	. = ..()
+	. += "There's something carved into it. It reads: \"[inscription]\""
 
 /obj/structure/prop/wooden_cross/attack_hand(mob/user)
 	if(helmet)

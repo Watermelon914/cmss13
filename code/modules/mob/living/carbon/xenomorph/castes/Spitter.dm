@@ -4,6 +4,7 @@
 
 	melee_damage_lower = XENO_DAMAGE_TIER_1
 	melee_damage_upper = XENO_DAMAGE_TIER_3
+	melee_vehicle_damage = XENO_DAMAGE_TIER_3
 	max_health = XENO_HEALTH_TIER_7
 	plasma_gain = XENO_PLASMA_GAIN_TIER_7
 	plasma_max = XENO_PLASMA_TIER_6
@@ -43,6 +44,7 @@
 		/datum/action/xeno_action/onclick/xeno_resting,
 		/datum/action/xeno_action/onclick/regurgitate,
 		/datum/action/xeno_action/watch_xeno,
+		/datum/action/xeno_action/activable/tail_stab,
 		/datum/action/xeno_action/activable/corrosive_acid,
 		/datum/action/xeno_action/activable/xeno_spit,
 		/datum/action/xeno_action/onclick/spitter_frenzy,

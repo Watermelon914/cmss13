@@ -48,7 +48,10 @@
 		var/obj/item/stack/cable_coil/coil = C
 		coil.turf_place(src, user)
 		return
-	if(istype(C, /obj/item/tool/weldingtool))
+	if(iswelder(C))
+		if(!HAS_TRAIT(C, TRAIT_TOOL_BLOWTORCH))
+			to_chat(user, SPAN_WARNING("You need a stronger blowtorch!"))
+			return
 		var/obj/item/tool/weldingtool/welder = C
 		if(welder.isOn() && (broken || burnt))
 			if(welder.remove_fuel(0, user))
@@ -201,7 +204,7 @@
 	icon_state = "black"
 
 /turf/open/floor/almayer/empty/is_weedable()
-	return FALSE
+	return NOT_WEEDABLE
 
 /turf/open/floor/almayer/empty/ex_act(severity) //Should make it indestructable
 	return
@@ -328,7 +331,7 @@
 	name = "floor"
 
 /turf/open/floor/wood
-	name = "floor"
+	name = "wooden floor"
 	icon_state = "wood"
 	tile_type = /obj/item/stack/tile/wood
 	tool_flags = BREAK_CROWBAR|REMOVE_SCREWDRIVER
@@ -337,7 +340,9 @@
 	return TRUE
 
 /turf/open/floor/wood/ship
+	name = "fake wooden floor"
 	desc = "This metal floor has been painted to look like one made of wood. Unfortunately, wood and high pressure internal atmosphere don't mix well. Wood is a major fire hazard don't'cha know."
+	tile_type = /obj/item/stack/tile/wood/fake
 
 /turf/open/floor/vault
 	icon_state = "rockvault"
@@ -417,6 +422,7 @@
 	name = "grass patch"
 	icon_state = "grass1"
 	tile_type = /obj/item/stack/tile/grass
+	tool_flags = null
 
 /turf/open/floor/grass/Initialize(mapload, ...)
 	. = ..()

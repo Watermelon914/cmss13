@@ -21,6 +21,17 @@
 			if(M && istype(M) && !M.stat && M.client && (!hivenumber || M.ally_of_hivenumber(hivenumber))) //Only living and connected xenos
 				to_chat(M, SPAN_XENODANGER("<span class=\"[fontsize_style]\"> [message]</span>"))
 
+//Sends a maptext alert to our currently selected squad. Does not make sound.
+/proc/xeno_maptext(var/text = "", var/title_text = "", var/hivenumber = XENO_HIVE_NORMAL)
+	if(text == "" || !hivenumber)
+		return //Logic
+
+	if(SSticker.mode && SSticker.mode.xenomorphs.len) //Send to only xenos in our gamemode list. This is faster than scanning all mobs
+		for(var/datum/mind/L in SSticker.mode.xenomorphs)
+			var/mob/living/carbon/M = L.current
+			if(M && istype(M) && !M.stat && M.client && M.ally_of_hivenumber(hivenumber)) //Only living and connected xenos
+				M.play_screen_text("<span class='langchat' style=font-size:16pt;text-align:center valign='top'><u>[title_text]</u></span><br>" + text, /atom/movable/screen/text/screen_text/command_order, "#b491c8")
+
 /proc/xeno_message_all(var/message = null, var/size = 3)
 	xeno_message(message, size)
 
@@ -34,7 +45,7 @@
 	. += ""
 
 	. += "Health: [round(health)]/[round(maxHealth)]"
-	. += "Armor: [round(0.01*armor_integrity*armor_deflection)]/[round(armor_deflection)]"
+	. += "Armor: [round(0.01*armor_integrity*armor_deflection)+(armor_deflection_buff-armor_deflection_debuff)]/[round(armor_deflection)]"
 	. += "Plasma: [round(plasma_stored)]/[round(plasma_max)]"
 	. += "Slash Damage: [round((melee_damage_lower+melee_damage_upper)/2)]"
 
@@ -174,6 +185,12 @@
 	if(bruteloss == 0 && fireloss == 0)
 		return
 
+	var/list/L = list("healing" = value)
+	SEND_SIGNAL(src, COMSIG_XENO_ON_HEAL, L)
+	value = L["healing"]
+	if(value < 0)
+		value = 0
+
 	if(bruteloss < value)
 		value -= bruteloss
 		bruteloss = 0
@@ -253,7 +270,7 @@
 		return
 
 	var/mob/living/carbon/M = L
-	if(M.stat || M.mob_size >= MOB_SIZE_BIG || can_not_harm(L))
+	if(M.stat || M.mob_size >= MOB_SIZE_BIG || can_not_harm(L) || M == src)
 		throwing = FALSE
 		return
 
@@ -655,7 +672,7 @@
 
 /mob/living/carbon/Xenomorph/proc/start_tracking_resin_mark(obj/effect/alien/resin/marker/target)
 	if(!target)
-		to_chat(src, SPAN_XENONOTICE("This resin mark no longer exists!."))
+		to_chat(src, SPAN_XENONOTICE("This resin mark no longer exists!"))
 		return
 	target.xenos_tracking |= src
 	tracked_marker = target
@@ -663,7 +680,7 @@
 	to_chat(src, SPAN_INFO("shift click the compass to watch the mark, alt click to stop tracking"))
 
 /mob/living/carbon/Xenomorph/proc/stop_tracking_resin_mark(destroyed) //tracked_marker shouldnt be nulled outside this PROC!! >:C
-	var/obj/screen/mark_locator/ML = hud_used.locate_marker
+	var/atom/movable/screen/mark_locator/ML = hud_used.locate_marker
 	ML.overlays.Cut()
 	if(destroyed)
 		to_chat(src, SPAN_XENONOTICE("The [tracked_marker.mark_meaning.name] resin mark has ceased to exist."))

@@ -16,7 +16,7 @@
 
 /obj/item/device/motiondetector
 	name = "motion detector"
-	desc = "A device that detects movement, but ignores marines."
+	desc = "A device that detects movement, but ignores marines. Can also be used to scan a vehicle interior from outside, but accuracy of such scanning is low and there is no way to differentiate friends from foes."
 	icon = 'icons/obj/items/marine-items.dmi'
 	icon_state = "detector"
 	item_state = "motion_detector"
@@ -38,10 +38,9 @@
 	var/long_range_locked = FALSE //only long-range MD
 	var/ping_overlay
 
-/obj/item/device/motiondetector/examine()
+/obj/item/device/motiondetector/get_examine_text(mob/user)
 	. = ..()
-	var/msg = "Blue bubble-like indicators on your HUD will show pings locations or direction to them. The device screen will show the amount of unidentified movements detected (up to 9). Has two modes: slow long-range [SPAN_HELPFUL("([MOTION_DETECTOR_RANGE_LONG] tiles)")] and fast short-range [SPAN_HELPFUL("([MOTION_DETECTOR_RANGE_SHORT] tiles)")]. Use [SPAN_HELPFUL("Alt + Click")] on the device to switch between modes. Using the device on the adjacent multitile vehicle will start the process of recalibrating and scanning vehicle interior for unidentified movements inside."
-	to_chat(usr, SPAN_INFO(msg))
+	. += SPAN_INFO("Blue bubble-like indicators on your HUD will show pings locations or direction to them. The device screen will show the amount of unidentified movements detected (up to 9). Has two modes: slow long-range [SPAN_HELPFUL("([MOTION_DETECTOR_RANGE_LONG] tiles)")] and fast short-range [SPAN_HELPFUL("([MOTION_DETECTOR_RANGE_SHORT] tiles)")]. Use [SPAN_HELPFUL("Alt + Click")] on the device to switch between modes. Using the device on the adjacent multitile vehicle will start the process of recalibrating and scanning vehicle interior for unidentified movements inside.")
 
 /obj/item/device/motiondetector/New()
 	range_bounds = new //Just creating a rectangle datum
@@ -113,23 +112,27 @@
 		toggle_active(user, active)
 
 // var/active is used to forcefully toggle it to a specific state
-/obj/item/device/motiondetector/proc/toggle_active(mob/user, var/old_active)
+/obj/item/device/motiondetector/proc/toggle_active(mob/user, var/old_active, var/forced = FALSE)
 	active = !old_active
 	if(!active)
-		turn_off(user)
+		turn_off(user, forced)
 	else
-		turn_on(user)
+		turn_on(user, forced)
 	update_icon()
 
-/obj/item/device/motiondetector/proc/turn_on(mob/user)
-	if(user)
-		to_chat(user, SPAN_NOTICE("You activate [src]."))
+/obj/item/device/motiondetector/proc/turn_on(mob/user, var/forced = FALSE)
+	if(forced)
+		visible_message(SPAN_NOTICE("\The [src] turns on."), SPAN_NOTICE("You hear a beep."), 3)
+	else if(user)
+		to_chat(user, SPAN_NOTICE("You activate \the [src]."))
 	playsound(loc, 'sound/items/detector_turn_on.ogg', 30, FALSE, 5, 2)
 	START_PROCESSING(SSobj, src)
 
-/obj/item/device/motiondetector/proc/turn_off(mob/user)
-	if(user)
-		to_chat(user, SPAN_NOTICE("You deactivate [src]."))
+/obj/item/device/motiondetector/proc/turn_off(mob/user, var/forced = FALSE)
+	if(forced)
+		visible_message(SPAN_NOTICE("\The [src] shorts out."), SPAN_NOTICE("You hear a click."), 3)
+	else if(user)
+		to_chat(user, SPAN_NOTICE("You deactivate \the [src]."))
 	scanning = FALSE // safety if MD runtimes in scan and stops scanning
 	icon_state = "[initial(icon_state)]"
 	playsound(loc, 'sound/items/detector_turn_off.ogg', 30, FALSE, 5, 2)

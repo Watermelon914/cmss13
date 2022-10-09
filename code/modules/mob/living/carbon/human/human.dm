@@ -117,15 +117,15 @@
 
 	damage = armor_damage_reduction(GLOB.marine_explosive, damage, getarmor(null, ARMOR_BOMB))
 
-	last_damage_data = cause_data
+	last_damage_data = istype(cause_data) ? cause_data : create_cause_data(cause_data)
 
 	if(damage >= EXPLOSION_THRESHOLD_GIB)
 		var/oldloc = loc
-		gib(cause_data)
-		create_shrapnel(oldloc, rand(5, 9), direction, 45, /datum/ammo/bullet/shrapnel/light/human, cause_data)
+		gib(last_damage_data)
+		create_shrapnel(oldloc, rand(5, 9), direction, 45, /datum/ammo/bullet/shrapnel/light/human, last_damage_data)
 		sleep(1)
-		create_shrapnel(oldloc, rand(5, 9), direction, 30, /datum/ammo/bullet/shrapnel/light/human/var1, cause_data)
-		create_shrapnel(oldloc, rand(5, 9), direction, 45, /datum/ammo/bullet/shrapnel/light/human/var2, cause_data)
+		create_shrapnel(oldloc, rand(5, 9), direction, 30, /datum/ammo/bullet/shrapnel/light/human/var1, last_damage_data)
+		create_shrapnel(oldloc, rand(5, 9), direction, 45, /datum/ammo/bullet/shrapnel/light/human/var2, last_damage_data)
 		return
 
 	if(!get_type_in_ears(/obj/item/clothing/ears/earmuffs))
@@ -156,8 +156,9 @@
 	var/update = 0
 
 	//Focus half the blast on one organ
+	var/mob/attack_source = last_damage_data?.resolve_mob()
 	var/obj/limb/take_blast = pick(limbs)
-	update |= take_blast.take_damage(b_loss * 0.5, f_loss * 0.5, used_weapon = "Explosive blast", attack_source = cause_data.resolve_mob())
+	update |= take_blast.take_damage(b_loss * 0.5, f_loss * 0.5, used_weapon = "Explosive blast", attack_source = attack_source)
 	pain.apply_pain(b_loss * 0.5, BRUTE)
 	pain.apply_pain(f_loss * 0.5, BURN)
 
@@ -189,7 +190,7 @@
 				limb_multiplier = 0.05
 			if("l_arm")
 				limb_multiplier = 0.05
-		update |= temp.take_damage(b_loss * limb_multiplier, f_loss * limb_multiplier, used_weapon = weapon_message, attack_source = cause_data.resolve_mob())
+		update |= temp.take_damage(b_loss * limb_multiplier, f_loss * limb_multiplier, used_weapon = weapon_message, attack_source = attack_source)
 		pain.apply_pain(b_loss * limb_multiplier, BRUTE)
 		pain.apply_pain(f_loss * limb_multiplier, BURN)
 	if(update)
@@ -496,7 +497,7 @@
 			usr.attack_log += text("\[[time_stamp()]\] <font color='red'>Attempted to toggle [key_name(src)]'s' sensors</font>")
 			var/obj/item/clothing/under/U = w_uniform
 			if(QDELETED(U))
-				to_chat(usr, "You're not wearing a uniform!.")
+				to_chat(usr, "You're not wearing a uniform!")
 			else if(U.has_sensor >= UNIFORM_FORCED_SENSORS)
 				to_chat(usr, "The controls are locked.")
 			else
@@ -716,7 +717,7 @@
 			if(perpref)
 				for(var/datum/data/record/E in GLOB.data_core.general)
 					if(E.fields["ref"] == perpref)
-						for(var/datum/data/record/R in GLOB.data_core.medical)
+						for(var/datum/data/record/R as anything in GLOB.data_core.medical)
 							if(R.fields["id"] == E.fields["id"])
 								if(hasHUD(usr,"medical"))
 									to_chat(usr, "<b>Name:</b> [R.fields["name"]]	<b>Blood Type:</b> [R.fields["b_type"]]")
@@ -744,7 +745,7 @@
 			if(perpref)
 				for(var/datum/data/record/E in GLOB.data_core.general)
 					if(E.fields["ref"] == perpref)
-						for(var/datum/data/record/R in GLOB.data_core.medical)
+						for(var/datum/data/record/R as anything in GLOB.data_core.medical)
 							if(R.fields["id"] == E.fields["id"])
 								if(hasHUD(usr,"medical"))
 									read = 1
@@ -770,7 +771,7 @@
 			if(perpref)
 				for(var/datum/data/record/E in GLOB.data_core.general)
 					if(E.fields["ref"] == perpref)
-						for(var/datum/data/record/R in GLOB.data_core.medical)
+						for(var/datum/data/record/R as anything in GLOB.data_core.medical)
 							if(R.fields["id"] == E.fields["id"])
 								if(hasHUD(usr,"medical"))
 									var/t1 = strip_html(input("Add Comment:", "Med. records", null, null)  as message)
@@ -807,25 +808,6 @@
 			to_chat(usr, SPAN_NOTICE("You add a [newcolor] holo card on [src]."))
 		update_targeted()
 
-	if(href_list["scanreport"])
-		if(hasHUD(usr,"medical"))
-			if(!skillcheck(usr, SKILL_MEDICAL, SKILL_MEDICAL_MEDIC))
-				to_chat(usr, SPAN_WARNING("You're not trained to use this."))
-				return
-			if(!has_species(src, "Human"))
-				to_chat(usr, SPAN_WARNING("This only works on humans."))
-				return
-			if(get_dist(usr, src) > 7)
-				to_chat(usr, SPAN_WARNING("[src] is too far away."))
-				return
-
-			var/me_ref = WEAKREF(src)
-			for(var/datum/data/record/R in GLOB.data_core.medical)
-				if(R.fields["ref"] == me_ref)
-					if(R.fields["last_scan_time"] && R.fields["last_scan_result"])
-						show_browser(usr, R.fields["last_scan_result"], "Medical Scan Report", "scanresults", "size=430x600")
-					break
-
 	if(href_list["lookitem"])
 		var/obj/item/I = locate(href_list["lookitem"])
 		if(istype(I))
@@ -854,8 +836,45 @@
 				flavor_texts[href_list["flavor_change"]] = msg
 				set_flavor()
 				return
+
+	if(href_list["scanreport"])
+		if(hasHUD(usr,"medical"))
+			if(!skillcheck(usr, SKILL_MEDICAL, SKILL_MEDICAL_MEDIC))
+				to_chat(usr, SPAN_WARNING("You're not trained to use this."))
+				return
+			if(!has_species(src, "Human"))
+				to_chat(usr, SPAN_WARNING("This only works on humans."))
+				return
+			if(get_dist(usr, src) > 7)
+				to_chat(usr, SPAN_WARNING("[src] is too far away."))
+				return
+
+			var/me_ref = WEAKREF(src)
+			for(var/datum/data/record/R as anything in GLOB.data_core.medical)
+				if(R.fields["ref"] == me_ref)
+					if(R.fields["last_scan_time"] && R.fields["last_scan_result"])
+						tgui_interact(usr)
+					break
 	..()
 	return
+
+/mob/living/carbon/human/tgui_interact(mob/user, datum/tgui/ui) // I'M SORRY, SO FUCKING SORRY
+	. = ..()
+	ui = SStgui.try_update_ui(user, src, ui)
+	if(!ui)
+		ui = new(user, src, "HealthScan", "Last Medical Scan of [src]")
+		ui.open()
+		ui.set_autoupdate(FALSE)
+
+/mob/living/carbon/human/ui_data(mob/user)
+	var/me_ref = WEAKREF(src)
+	for(var/datum/data/record/R as anything in GLOB.data_core.medical)
+		if(R.fields["ref"] == me_ref)
+			if(R.fields["last_tgui_scan_result"])
+				return R.fields["last_tgui_scan_result"]
+
+/mob/living/carbon/human/ui_state(mob/user)
+	return GLOB.not_incapacitated_state
 
 ///get_eye_protection()
 ///Returns a number between -1 to 2
@@ -979,12 +998,12 @@
 
 /mob/living/carbon/human/proc/is_lung_ruptured()
 	var/datum/internal_organ/lungs/L = internal_organs_by_name["lungs"]
-	return L && L.is_bruised()
+	return L && L.organ_status >= ORGAN_BRUISED
 
 /mob/living/carbon/human/proc/rupture_lung()
 	var/datum/internal_organ/lungs/L = internal_organs_by_name["lungs"]
 
-	if(L && !L.is_bruised())
+	if(L && !L.organ_status >= ORGAN_BRUISED)
 		src.custom_pain("You feel a stabbing pain in your chest!", 1)
 		L.damage = L.min_bruised_damage
 
@@ -1004,7 +1023,10 @@
 	for(var/obj/item/W in embedded_items)
 		var/obj/limb/organ = W.embedded_organ
 		// Check if shrapnel
-		if(istype(W, /obj/item/shard/shrapnel))
+		if(istype(W, /obj/item/large_shrapnel))
+			var/obj/item/large_shrapnel/embedded = W
+			embedded.on_embedded_movement(src)
+		else if(istype(W, /obj/item/shard/shrapnel))
 			var/obj/item/shard/shrapnel/embedded = W
 			embedded.on_embedded_movement(src)
 		// Check if its a sharp weapon
@@ -1062,6 +1084,39 @@
 	var/dat = GLOB.data_core.get_manifest()
 
 	show_browser(src, dat, "Crew Manifest", "manifest", "size=400x750")
+
+/mob/living/carbon/human/verb/view_objective_memory()
+    set name = "View objectives"
+    set category = "IC"
+
+    if(!mind)
+        to_chat(src, "The game appears to have misplaced your mind datum.")
+        return
+
+    if(!skillcheck(usr, SKILL_INTEL, SKILL_INTEL_TRAINED) || faction != FACTION_MARINE && !(faction in FACTION_LIST_WY))
+        to_chat(usr, SPAN_WARNING("You have no access to the [MAIN_SHIP_NAME] intel network."))
+        return
+
+    mind.view_objective_memories(src)
+
+/mob/living/carbon/human/verb/purge_objective_memory()
+	set name = "Reset view objectives"
+	set category = "OOC.Fix"
+
+	if(!mind)
+		to_chat(src, "The game appears to have misplaced your mind datum.")
+		return
+
+	if(tgui_alert(src, "Remove the faulty entry?", "Confirm", list("Yes", "No"), 10 SECONDS) == "Yes")
+		for(var/datum/cm_objective/retrieve_data/disk/Objective in src.mind.objective_memory.disks)
+			if(!Objective.disk.disk_color || !Objective.disk.display_color)
+				src.mind.objective_memory.disks -= Objective
+	else
+		return
+
+	if(tgui_alert(src, "Did it work?", "Confirm", list("Yes", "No"), 10 SECONDS) == "No")
+		for(var/datum/cm_objective/Objective in src.mind.objective_memory.disks)
+			src.mind.objective_memory.disks -= Objective
 
 /mob/living/carbon/human/proc/set_species(var/new_species, var/default_colour)
 	if(!new_species)
@@ -1193,11 +1248,11 @@
 	hud_used.locate_leader.icon_state = "trackoff"
 
 	var/static/list/squad_leader_trackers = list(
-		TRACKER_ASL = /datum/squad/alpha,
-		TRACKER_BSL = /datum/squad/bravo,
-		TRACKER_CSL = /datum/squad/charlie,
-		TRACKER_DSL = /datum/squad/delta,
-		TRACKER_ESL = /datum/squad/echo
+		TRACKER_ASL = /datum/squad/marine/alpha,
+		TRACKER_BSL = /datum/squad/marine/bravo,
+		TRACKER_CSL = /datum/squad/marine/charlie,
+		TRACKER_DSL = /datum/squad/marine/delta,
+		TRACKER_ESL = /datum/squad/marine/echo
 	)
 	switch(tracker_setting)
 		if(TRACKER_SL)
@@ -1224,13 +1279,18 @@
 		if(TRACKER_XO)
 			H = GLOB.marine_leaders[JOB_XO]
 			tracking_suffix = "_xo"
+		if(TRACKER_CL)
+			var/datum/job/civilian/liaison/liaison_job = RoleAuthority.roles_for_mode[JOB_CORPORATE_LIAISON]
+			if(liaison_job?.active_liaison)
+				H = liaison_job.active_liaison
+			tracking_suffix = "_cl"
 		else
 			if(tracker_setting in squad_leader_trackers)
 				var/datum/squad/S = RoleAuthority.squads_by_type[squad_leader_trackers[tracker_setting]]
 				H = S.squad_leader
 				tracking_suffix = tracker_setting
 
-	if(!H)
+	if(!H || H.w_uniform?.sensor_mode != SENSOR_MODE_LOCATION)
 		return
 	if(H.z != src.z || get_dist(src,H) < 1 || src == H)
 		hud_used.locate_leader.icon_state = "trackondirect[tracking_suffix]"
@@ -1295,7 +1355,7 @@
 		tint_level = VISION_IMPAIR_STRONG
 
 	if(tint_level)
-		overlay_fullscreen("tint", /obj/screen/fullscreen/impaired, tint_level)
+		overlay_fullscreen("tint", /atom/movable/screen/fullscreen/impaired, tint_level)
 		return TRUE
 	else
 		clear_fullscreen("tint", 0)
@@ -1397,7 +1457,7 @@
 					W.amount = 0 //we checked that we have at least one bodypart splinted, so we can create it no prob. Also we need amount to be 0
 					W.add_fingerprint(HS)
 					for(var/obj/limb/l in to_splint)
-						amount_removed += 1
+						amount_removed++
 						l.status &= ~LIMB_SPLINTED
 						pain.recalculate_pain()
 						if(l.status & LIMB_SPLINTED_INDESTRUCTIBLE)
@@ -1580,4 +1640,4 @@
 	. += "<option value='?_src_=vars;edit_skill=\ref[src]'>Edit Skills</option>"
 	. += "<option value='?_src_=vars;setspecies=\ref[src]'>Set Species</option>"
 	. += "<option value='?_src_=vars;selectequipment=\ref[src]'>Select Equipment</option>"
-	. += "<option value='?_src_=admin_holder;adminspawncookie=\ref[src]'>Give Cookie</option>"
+	. += "<option value='?_src_=admin_holder;[HrefToken(forceGlobal = TRUE)];adminspawncookie=\ref[src]'>Give Cookie</option>"

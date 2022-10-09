@@ -7,7 +7,7 @@
 	icon_state = "almayer"
 	ceiling = CEILING_METAL
 	powernet_name = "almayer"
-	sound_environment = 2
+	sound_environment = SOUND_ENVIRONMENT_ROOM
 	soundscape_interval = 30
 	//soundscape_playlist = list('sound/effects/xylophone1.ogg', 'sound/effects/xylophone2.ogg', 'sound/effects/xylophone3.ogg')
 	ambience_exterior = AMBIENCE_ALMAYER
@@ -99,7 +99,7 @@
 	flags_area = AREA_NOTUNNEL
 
 /area/almayer/command/corporateliason
-	name = "\improper Corporate Liason Office"
+	name = "\improper Corporate Liaison Office"
 	icon_state = "corporatespace"
 	fake_zlevel = 1 // upperdeck
 
@@ -513,7 +513,7 @@
 	fake_zlevel = 1 // upperdeck
 
 /area/almayer/living/chapel
-	name = "\improper Chapel"
+	name = "\improper Almayer Chapel"
 	icon_state = "officerrnr"
 	fake_zlevel = 1 // upperdeck
 

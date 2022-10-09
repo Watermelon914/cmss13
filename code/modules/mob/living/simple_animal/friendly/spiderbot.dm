@@ -78,7 +78,10 @@
 		update_icon()
 		return 1
 
-	if (istype(O, /obj/item/tool/weldingtool))
+	if (iswelder(O))
+		if(!HAS_TRAIT(O, TRAIT_TOOL_BLOWTORCH))
+			to_chat(user, SPAN_WARNING("You need a stronger blowtorch!"))
+			return
 		var/obj/item/tool/weldingtool/WT = O
 		if (WT.remove_fuel(0))
 			if(health < maxHealth)
@@ -252,7 +255,7 @@
 	to_chat(src, SPAN_DANGER("There is nothing of interest to take."))
 	return 0
 
-/mob/living/simple_animal/spiderbot/examine(mob/user)
-	..()
+/mob/living/simple_animal/spiderbot/get_examine_text(mob/user)
+	. = ..()
 	if(held_item)
-		to_chat(user, "It is carrying \a [held_item] [icon2html(held_item, user)].")
+		. += "It is carrying \a [held_item] [icon2html(held_item, user)]."

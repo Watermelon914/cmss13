@@ -39,10 +39,10 @@
 			to_chat(H, SPAN_NOTICE("The ID lock rejects your ID"))
 	update_icon()
 
-/obj/item/storage/backpack/equipped(mob/user, slot)
+/obj/item/storage/backpack/equipped(mob/user, slot, silent)
 	if(slot == WEAR_BACK)
 		mouse_opacity = 2 //so it's easier to click when properly equipped.
-		if(use_sound)
+		if(use_sound && !silent)
 			playsound(loc, use_sound, 15, TRUE, 6)
 		if(!worn_accessible) //closes it if it's open.
 			storage_close(user)
@@ -123,12 +123,12 @@ obj/item/storage/backpack/proc/compare_id(var/mob/living/carbon/human/H)
 	else
 		overlays += "+[icon_state]_full"
 
-/obj/item/storage/backpack/examine(mob/user)
-	..()
+/obj/item/storage/backpack/get_examine_text(mob/user)
+	. = ..()
 	if(is_id_lockable)
-		to_chat(user, "Features an ID lock. Swipe your ID card to lock or unlock it.")
+		. += "Features an ID lock. Swipe your ID card to lock or unlock it."
 		if(lock_overridable)
-			to_chat(user, "This lock can be overridden with command-level access.")
+			. += "This lock can be overridden with command-level access."
 
 /*
  * Backpack Types
@@ -325,6 +325,12 @@ obj/item/storage/backpack/proc/compare_id(var/mob/living/carbon/human/H)
 	icon_state = "marinepack_techi"
 	item_state = "marinepack_techi"
 
+/obj/item/storage/backpack/marine/satchel/intel
+	name = "\improper USCM lightweight expedition pack"
+	desc = "A heavy-duty IMP based backpack that can be slung around the front or to the side, and can quickly be accessed with only one hand. Usually issued to USCM intelligence officers."
+	icon_state = "marinebigsatch"
+	max_storage_space = 20
+
 /obj/item/storage/backpack/marine/satchel
 	name = "\improper USCM satchel"
 	desc = "A heavy-duty satchel carried by some USCM soldiers and support personnel."
@@ -360,6 +366,7 @@ GLOBAL_LIST_EMPTY_TYPED(radio_packs, /obj/item/storage/backpack/marine/satchel/r
 	icon_state = "rto_backpack"
 	item_state = "rto_backpack"
 	has_gamemode_skin = FALSE
+	actions_types = list(/datum/action/item_action/rto_pack/use_phone)
 
 	flags_item = ITEM_OVERRIDE_NORTHFACE
 
@@ -367,6 +374,22 @@ GLOBAL_LIST_EMPTY_TYPED(radio_packs, /obj/item/storage/backpack/marine/satchel/r
 	var/obj/structure/transmitter/internal/internal_transmitter
 
 	var/base_icon
+
+/datum/action/item_action/rto_pack/use_phone/New(var/mob/living/user, var/obj/item/holder)
+	..()
+	name = "Use Phone"
+	button.name = name
+	button.overlays.Cut()
+	var/image/IMG = image('icons/obj/items/misc.dmi', button, "rpb_phone")
+	button.overlays += IMG
+
+/datum/action/item_action/rto_pack/use_phone/action_activate()
+	if(!istype(owner, /mob/living/carbon/human))
+		return
+	var/mob/living/carbon/human/user = owner
+	if(istype(user.back, /obj/item/storage/backpack/marine/satchel/rto))
+		var/obj/item/storage/backpack/marine/satchel/rto/R = user.back
+		R.use_phone(user)
 
 /obj/item/storage/backpack/marine/satchel/rto/post_skin_selection()
 	base_icon = icon_state
@@ -439,28 +462,18 @@ GLOBAL_LIST_EMPTY_TYPED(radio_packs, /obj/item/storage/backpack/marine/satchel/r
 	internal_transmitter.phone_id = "[src]"
 	internal_transmitter.enabled = FALSE
 
-/obj/item/storage/backpack/marine/satchel/rto/attack_hand(mob/user)
+/obj/item/storage/backpack/marine/satchel/rto/proc/use_phone(mob/user)
 	if(user.back == src)
 		internal_transmitter.attack_hand(user)
 	else if(internal_transmitter.get_calling_phone())
-		if(internal_transmitter.attached_to && internal_transmitter.attached_to.loc != internal_transmitter)
-			return . = ..()
 		internal_transmitter.attack_hand(user)
-	else
-		. = ..()
+
 
 /obj/item/storage/backpack/marine/satchel/rto/attackby(obj/item/W, mob/user)
 	if(internal_transmitter && internal_transmitter.attached_to == W)
 		internal_transmitter.attackby(W, user)
 	else
 		. = ..()
-
-/obj/item/storage/backpack/marine/satchel/rto/proc/new_droppod_tech_unlocked(name)
-	playsound(get_turf(loc), 'sound/machines/techpod/techpod_rto_notif.ogg', 100, FALSE, 1, 4)
-
-	if(ismob(loc))
-		var/mob/M = loc
-		to_chat(M, SPAN_PURPLE("[icon2html(src, M)] New droppod available ([name])."))
 
 /obj/item/storage/backpack/marine/satchel/rto/small
 	name = "\improper USCM Small Radio Telephone Pack"
@@ -705,7 +718,7 @@ GLOBAL_LIST_EMPTY_TYPED(radio_packs, /obj/item/storage/backpack/marine/satchel/r
 
 /obj/item/storage/backpack/marine/engineerpack/attackby(obj/item/W, mob/living/user)
 	if(reagents.total_volume)
-		if(istype(W, /obj/item/tool/weldingtool))
+		if(iswelder(W))
 			var/obj/item/tool/weldingtool/T = W
 			if(T.welding)
 				to_chat(user, SPAN_WARNING("That was close! However, you realized you had the welder on and prevented disaster."))
@@ -757,9 +770,9 @@ GLOBAL_LIST_EMPTY_TYPED(radio_packs, /obj/item/storage/backpack/marine/satchel/r
 		return
 	..()
 
-/obj/item/storage/backpack/marine/engineerpack/examine(mob/user)
-	..()
-	to_chat(user, "[reagents.total_volume] units of fuel left!")
+/obj/item/storage/backpack/marine/engineerpack/get_examine_text(mob/user)
+	. = ..()
+	. += "[reagents.total_volume] units of fuel left!"
 
 /obj/item/storage/backpack/marine/engineerpack/satchel
 	name = "\improper USCM technician welder-satchel"

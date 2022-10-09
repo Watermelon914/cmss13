@@ -5,6 +5,7 @@
 
 	melee_damage_lower = XENO_DAMAGE_TIER_2
 	melee_damage_upper = XENO_DAMAGE_TIER_4
+	melee_vehicle_damage = XENO_DAMAGE_TIER_3
 	max_health = XENO_HEALTH_TIER_9
 	plasma_gain = XENO_PLASMA_GAIN_TIER_6
 	plasma_max = XENO_PLASMA_TIER_4
@@ -55,6 +56,7 @@
 		/datum/action/xeno_action/onclick/xeno_resting,
 		/datum/action/xeno_action/onclick/regurgitate,
 		/datum/action/xeno_action/watch_xeno,
+		/datum/action/xeno_action/activable/tail_stab,
 		/datum/action/xeno_action/activable/place_construction,
 		/datum/action/xeno_action/onclick/emit_pheromones,
 		/datum/action/xeno_action/onclick/plant_weeds, //1st macro

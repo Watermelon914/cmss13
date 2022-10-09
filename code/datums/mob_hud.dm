@@ -430,7 +430,7 @@ var/list/datum/mob_hud/huds = list(
 						holder3.icon_state = "huddead"
 						holder2_set = 1
 			else
-				if(heart && (heart.is_broken() && check_tod())) // broken heart icon
+				if(heart && (heart.organ_status >= ORGAN_BROKEN && check_tod())) // broken heart icon
 					holder.icon_state = "huddeadheart"
 					if(!holder2_set)
 						holder2.icon_state = "huddeadheart"
@@ -620,7 +620,7 @@ var/list/datum/mob_hud/huds = list(
 	holder.overlays.Cut()
 
 	if(mob_flags & MUTINEER)
-		holder.icon_state = "hudmutineer"
+		holder.overlays += image('icons/mob/hud/marine_hud.dmi', src, "hudmutineer")
 		return
 
 	F.modify_hud_holder(holder, src)
@@ -716,15 +716,15 @@ var/global/image/hud_icon_hudfocus
 	holder.overlays.Cut()
 	if(mobility_aura)
 		if(!hud_icon_hudmove)
-			hud_icon_hudmove = image('icons/mob/hud/hud.dmi', src, "hudmove")
+			hud_icon_hudmove = image('icons/mob/hud/marine_hud.dmi', src, "hudmove")
 		holder.overlays += hud_icon_hudmove
 	if(protection_aura)
 		if(!hud_icon_hudhold)
-			hud_icon_hudhold = image('icons/mob/hud/hud.dmi', src, "hudhold")
+			hud_icon_hudhold = image('icons/mob/hud/marine_hud.dmi', src, "hudhold")
 		holder.overlays += hud_icon_hudhold
 	if(marksman_aura)
 		if(!hud_icon_hudfocus)
-			hud_icon_hudfocus = image('icons/mob/hud/hud.dmi', src, "hudfocus")
+			hud_icon_hudfocus = image('icons/mob/hud/marine_hud.dmi', src, "hudfocus")
 		holder.overlays += hud_icon_hudfocus
 	hud_list[ORDER_HUD] = holder
 

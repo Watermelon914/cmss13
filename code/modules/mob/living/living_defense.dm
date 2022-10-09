@@ -89,8 +89,7 @@
 		var/impact_damage = (1 + MOB_SIZE_COEFF/(mob_size + 1))*THROW_SPEED_DENSE_COEFF*cur_speed
 		apply_damage(impact_damage)
 		visible_message(SPAN_DANGER("\The [name] slams into [O]!"), null, null, 5) //feedback to know that you got slammed into a wall and it hurt
-		var/S = pick('sound/weapons/punch1.ogg','sound/weapons/punch2.ogg','sound/weapons/punch3.ogg','sound/weapons/punch4.ogg')
-		playsound(O,S, 50, 1)
+		playsound(O,"slam", 50, 1)
 	..()
 
 //This is called when the mob or human is thrown into a dense turf or wall
@@ -102,8 +101,7 @@
 		var/impact_damage = (1 + MOB_SIZE_COEFF/(mob_size + 1))*THROW_SPEED_DENSE_COEFF*cur_speed
 		apply_damage(impact_damage)
 		visible_message(SPAN_DANGER("\The [name] slams into [T]!"), null, null, 5) //feedback to know that you got slammed into a wall and it hurt
-		var/S = pick('sound/weapons/punch1.ogg','sound/weapons/punch2.ogg','sound/weapons/punch3.ogg','sound/weapons/punch4.ogg')
-		playsound(T,S, 50, 1)
+		playsound(T,"slam", 50, 1)
 	..()
 
 /mob/living/proc/near_wall(var/direction,var/distance=1)
@@ -133,6 +131,7 @@
 		on_fire = TRUE
 		to_chat(src, SPAN_DANGER("You are on fire! Use Resist to put yourself out!"))
 		update_fire()
+		SEND_SIGNAL(src, COMSIG_LIVING_IGNITION)
 		return IGNITE_IGNITED
 	return IGNITE_FAILED
 
@@ -146,6 +145,7 @@
 		on_fire = FALSE
 		fire_stacks = 0
 		update_fire()
+		SetLuminosity(0)
 		return TRUE
 	return FALSE
 
@@ -169,6 +169,9 @@
 		fire_reagent = new /datum/reagent/napalm/ut()
 
 	var/max_stacks = min(fire_reagent.durationfire, MAX_FIRE_STACKS) // Fire stacks should not exceed MAX_FIRE_STACKS for reasonable resist amounts
+	switch(fire_reagent.fire_type)
+		if(FIRE_VARIANT_TYPE_B)
+			max_stacks = 10 //Armor Shredding Greenfire caps at 1 resist/pat
 	fire_stacks = Clamp(fire_stacks + add_fire_stacks, min_stacks, max_stacks)
 
 	if(on_fire && fire_stacks <= 0)
@@ -195,28 +198,29 @@
 
 //Mobs on Fire end
 
-/mob/living/proc/update_weather()
+/mob/living/proc/update_weather(check_area = TRUE)
+	SHOULD_NOT_SLEEP(TRUE)
 	// Only player mobs are affected by weather.
-	if(!src.client)
-		return
-
-	if(!SSweather)
+	if(!client)
 		return
 
 	// Do this always
 	clear_fullscreen("weather")
 	remove_weather_effects()
 
+	var/area/area = get_area(src)
 	// Check if we're supposed to be something affected by weather
-	if(SSweather.is_weather_event && SSweather.weather_event_instance && SSweather.weather_affects_check(src))
-		// Ok, we're affected by weather.
+	if(!SSweather.is_weather_event || !SSweather.weather_event_instance)
+		return
+	if(check_area && !SSweather.map_holder.should_affect_area(area))
+		return
 
-		// Fullscreens
-		if(SSweather.weather_event_instance.fullscreen_type)
-			overlay_fullscreen("weather", SSweather.weather_event_instance.fullscreen_type)
-		else
-			clear_fullscreen("weather")
+	// Fullscreens
+	if(SSweather.weather_event_instance.fullscreen_type)
+		overlay_fullscreen("weather", SSweather.weather_event_instance.fullscreen_type)
+	else
+		clear_fullscreen("weather")
 
-		// Effects
-		if(SSweather.weather_event_instance.effect_type)
-			new SSweather.weather_event_instance.effect_type(src)
+	// Effects
+	if(SSweather.weather_event_instance.effect_type)
+		new SSweather.weather_event_instance.effect_type(src)

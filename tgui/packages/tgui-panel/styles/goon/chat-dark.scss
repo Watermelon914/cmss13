@@ -949,6 +949,8 @@ em {
 .centradio {
   color: #5C5C8A;
 }
+.hcradio		  		{color: #318779;}
+.cryoradio				{color: #4a4740;}
 
 .airadio {
   color: #FF00FF;
@@ -1331,7 +1333,11 @@ em {
 }
 
 .japanese {
-  color: #be0029
+  color: #940927
+}
+
+.chinese {
+  color: #fe1919
 }
 
 .zombie {
@@ -1403,6 +1409,20 @@ em {
     transform: translate(1px, 1px);
   }
 
+}
+
+.examine_block {
+  background: #1b1c1e;
+  border: 1px solid #a4bad6;
+  margin: 0.5em;
+  padding: 0.5em 0.75em;
+}
+
+.examine_block .icon {
+  width: 1.5em;
+  height: 1.5em;
+  margin: 0;
+  padding: 0;
 }
 
 .tooltip {

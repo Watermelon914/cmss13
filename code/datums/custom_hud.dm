@@ -2,10 +2,10 @@
 	var/ui_style_icon	= 'icons/mob/hud/human_midnight.dmi'
 	var/ui_frame_icon 	= 'icons/mob/hud/human_dark_frame.dmi'
 
-	//Lower left, persistant menu
+	//Lower left, persistent menu
 	var/ui_inventory 	= "WEST:6,1:5"
 
-	//Lower center, persistant menu
+	//Lower center, persistent menu
 	var/ui_sstore1 		= "WEST+2:10,1:5"
 	var/ui_id 			= "WEST+3:12,1:5"
 	var/ui_belt 		= "WEST+4:14,1:5"
@@ -18,7 +18,7 @@
 	var/ui_storage1 	= "WEST+8:18,1:5"
 	var/ui_storage2 	= "WEST+9:20,1:5"
 
-	//Lower right, persistant menu
+	//Lower right, persistent menu
 	var/ui_dropbutton 	= "EAST-4:22,1:5"
 	var/ui_drop_throw 	= "EAST-1:28,2:7"
 	var/ui_pull 		= "EAST-2:26,2:7"
@@ -132,7 +132,7 @@
 	return "EAST[coord_col]:[coord_col_offset],NORTH[coord_row]:[coord_row_offset]"
 
 /datum/custom_hud/dark/special_behaviour(var/datum/hud/element, var/ui_alpha = 255, var/ui_color = "#ffffff")
-	element.frame_hud = new /obj/screen()
+	element.frame_hud = new /atom/movable/screen()
 	element.frame_hud.icon = ui_frame_icon
 	element.frame_hud.icon_state = "dark"
 	element.frame_hud.screen_loc = UI_FRAME_LOC
@@ -142,7 +142,7 @@
 	element.frame_hud.color = ui_color
 	element.static_inventory += element.frame_hud
 
-	element.pulse_line = new /obj/screen()
+	element.pulse_line = new /atom/movable/screen()
 	element.pulse_line.icon = ui_frame_icon
 	element.pulse_line.icon_state = "pulse_good"
 	element.pulse_line.screen_loc = UI_FRAME_LOC
